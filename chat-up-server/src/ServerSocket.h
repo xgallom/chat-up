@@ -9,16 +9,21 @@
 #include <Socket/SocketAddress.h>
 #include "ClientSocket.h"
 
+#include <optional>
+
 class ServerSocket : public Socket {
 public:
-	ServerSocket() = default;
+	int maxConcurrentConnections = 0;
 
-	ServerSocket(ServerSocket &&) noexcept = default;
+public:
+	ServerSocket();
+
+	ServerSocket(ServerSocket &&) noexcept;
 	ServerSocket &operator =(ServerSocket &&) noexcept = default;
 
 	void bind(const SocketAddress &socketAddress);
 	void listen(int maxPending);
-	ClientSocket accept();
+	std::optional<ClientSocket> accept();
 };
 
 #endif //CHAT_UP_SERVERSOCKET_H

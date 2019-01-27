@@ -132,5 +132,7 @@ Outcome::Enum ClientService::runAuthenticatingWaiting()
 
 Outcome::Enum ClientService::runRunning()
 {
+	const auto message = m_receiver.receiveMessage();
+
 	return Outcome::Retry;
 }

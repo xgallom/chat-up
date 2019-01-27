@@ -12,6 +12,7 @@ public:
 	ServerSocketConfig(const ConfigManager &configManager) noexcept;
 
 	int maxPendingConnections(int defaultValue) noexcept;
+	int maxConcurrentConnections(int defaultValue) noexcept;
 };
 
 #endif //CHAT_UP_SERVERSOCKETCONFIG_H

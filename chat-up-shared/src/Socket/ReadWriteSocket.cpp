@@ -18,22 +18,26 @@ int ReadWriteSocket::readByte() noexcept
 
 	const auto readResult = recv(fd(), &byteRead, sizeof(byteRead), MSG_DONTWAIT);
 
-	if(readResult < 0)
-		return -1;
-	else
+	if(readResult > 0)
 		return byteRead;
+	else if(!readResult || errno != EAGAIN)
+		close();
+
+	return -1;
 }
 
 void ReadWriteSocket::readWalk(char *&buf, size_t &remaining) noexcept
 {
 	const auto readResult = recv(fd(), buf, remaining, MSG_DONTWAIT);
 
-	if(readResult >= 0) {
+	if(readResult > 0) {
 		const auto bytesRead = static_cast<size_t>(readResult);
 
 		buf += bytesRead;
 		remaining -= bytesRead;
 	}
+	else if(!readResult || errno != EAGAIN)
+		close();
 }
 
 void ReadWriteSocket::writeByte(char data) noexcept
@@ -51,15 +55,14 @@ void ReadWriteSocket::write(const char *data, size_t length) noexcept
 	while(length) {
 		const auto sendResult = send(fd(), data, length, 0);
 
-		if(sendResult < 0) {
-			close();
-			return;
+		if(sendResult >= 0) {
+			const auto bytesSent = static_cast<size_t>(sendResult);
+
+			length -= bytesSent;
+			data += bytesSent;
 		}
-
-		const auto bytesSent = static_cast<size_t>(sendResult);
-
-		length -= bytesSent;
-		data += bytesSent;
+		else
+			close();
 	}
 }
 

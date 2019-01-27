@@ -20,3 +20,16 @@ int ServerSocketConfig::maxPendingConnections(int defaultValue) noexcept
 	return value;
 }
 
+int ServerSocketConfig::maxConcurrentConnections(int defaultValue) noexcept
+{
+	const auto valueCfg = m_configManager.find("maxConcurrent");
+
+	int value;
+
+	if(m_configManager.exists(valueCfg))
+		valueCfg.value() >> value;
+	else
+		value = defaultValue;
+
+	return value;
+}
