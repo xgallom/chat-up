@@ -15,8 +15,8 @@ private:
 public:
 	explicit ConfigManager(const char fileName[], int argc, char *argv[]) noexcept;
 
-	ConfigManager(const ConfigManager &) noexcept = default;
-	ConfigManager &operator=(const ConfigManager &) noexcept = default;
+	ConfigManager(const ConfigManager &) = default;
+	ConfigManager &operator=(const ConfigManager &) = default;
 
 	ConfigManager(ConfigManager &&) noexcept = default;
 	ConfigManager &operator=(ConfigManager &&) noexcept = default;

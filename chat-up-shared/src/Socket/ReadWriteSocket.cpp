@@ -14,14 +14,14 @@ ReadWriteSocket::ReadWriteSocket(int socket) noexcept : Socket(socket) {}
 
 int ReadWriteSocket::readByte() noexcept
 {
-	char byteRead;
+	char byteRead = 'd';
 
 	const auto readResult = recv(fd(), &byteRead, sizeof(byteRead), MSG_DONTWAIT);
 
-	if(readResult > 0)
-		return byteRead;
-	else
+	if(readResult < 0)
 		return -1;
+	else
+		return byteRead;
 }
 
 void ReadWriteSocket::readWalk(char *&buf, size_t &remaining) noexcept

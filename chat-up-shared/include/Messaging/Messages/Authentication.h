@@ -6,13 +6,12 @@
 #define CHAT_UP_AUTHENTICATION_H
 
 #include "Messaging/MessageBody.h"
+#include "Authentication/User.h"
 
 struct AuthenticationMessageBody : public MessageBody {
 	static const MessageType::Enum Type = MessageType::Authentication;
 
-	char
-			username[16] = {},
-			password[16] = {};
+	User user = User();
 };
 
 struct AuthenticationSuccessfulBody : public MessageBody {

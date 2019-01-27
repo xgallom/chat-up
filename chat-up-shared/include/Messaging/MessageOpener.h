@@ -5,6 +5,8 @@
 #ifndef CHAT_UP_MESSAGEOPENER_H
 #define CHAT_UP_MESSAGEOPENER_H
 
-static const char MessageOpener = '<';
+#include <cstdint>
+
+static const char MessageOpener = 0x16;
 
 #endif //CHAT_UP_MESSAGEOPENER_H

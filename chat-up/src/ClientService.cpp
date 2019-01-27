@@ -10,7 +10,7 @@
 
 ClientService::ClientService(ClientSocket &socket) noexcept : m_receiver(socket), m_sender(socket) {}
 
-bool ClientService::run()
+Outcome::Enum ClientService::run()
 {
 	switch(m_state) {
 		case StateHandshaking:
@@ -30,10 +30,11 @@ bool ClientService::run()
 	}
 
 	std::cerr << "Client service has invalid state\n";
-	return false;
+
+	return Outcome::Failed;
 }
 
-bool ClientService::runHandshaking()
+Outcome::Enum ClientService::runHandshaking()
 {
 	auto body = createBody<HandshakeMessageBody>();
 
@@ -47,12 +48,12 @@ bool ClientService::runHandshaking()
 
 	m_state = StateHandshakingWaiting;
 
-	return true;
+	return Outcome::Success;
 }
 
-bool ClientService::runHandshakingWaiting()
+Outcome::Enum ClientService::runHandshakingWaiting()
 {
-	auto message = m_receiver.receiveMessage();
+	const auto message = m_receiver.receiveMessage();
 
 	if(message.isValid()) {
 		switch(message.type()) {
@@ -60,7 +61,8 @@ bool ClientService::runHandshakingWaiting()
 				std::cout << "Handshake successful\n";
 
 				m_state = StateAuthenticating;
-				return true;
+
+				return Outcome::Success;
 
 			case MessageType::HandshakeFailed: {
 				const auto &body = message.bodyAs<HandshakeFailedMessageBody>();
@@ -68,41 +70,67 @@ bool ClientService::runHandshakingWaiting()
 				std::cout << "Handshake failed: Server runs version " << static_cast<int>(body.version.major) << "."
 						  << static_cast<int>(body.version.minor) << std::endl;
 
-				return false;
+				return Outcome::Failed;
 			}
 
 			default:
-				std::cout << "Invalid handshake response: " << message.type() << std::endl;
-				return false;
+				std::cerr << "Invalid handshake response: " << message.type() << std::endl;
+
+				return Outcome::Failed;
 		}
 	}
 
-	return true;
+	return Outcome::Retry;
 }
 
-bool ClientService::runAuthenticating()
+Outcome::Enum ClientService::runAuthenticating()
 {
 	auto body = createBody<AuthenticationMessageBody>();
 
 	std::cout << "Username: ";
-	std::cin.getline(body->username, 16);
+	getline(std::cin, body->user.username);
 
 	std::cout << "Password: ";
-	std::cin.getline(body->password, 16);
+	getline(std::cin, body->user.password);
 
 	m_sender.sendMessage<AuthenticationMessageBody>(Message(std::move(body)));
 
 	m_state = StateAuthenticatingWaiting;
 
-	return true;
+	return Outcome::Success;
 }
 
-bool ClientService::runAuthenticatingWaiting()
+Outcome::Enum ClientService::runAuthenticatingWaiting()
 {
-	return true;
+	const auto message = m_receiver.receiveMessage();
+
+	if(message.isValid()) {
+		switch(message.type()) {
+			case MessageType::AuthenticationSuccessful:
+				std::cout << "Authentication successful\n";
+
+				m_state = StateRunning;
+
+				return Outcome::Success;
+
+			case MessageType::AuthenticationFailed:
+				std::cout << "Authentication failed\n";
+
+				m_state = StateAuthenticating;
+
+				break;
+
+			default:
+				std::cerr << "Invalid handshake response: " << message.type() << std::endl;
+
+				return Outcome::Failed;
+		}
+	}
+
+	return Outcome::Retry;
 }
 
-bool ClientService::runRunning()
+Outcome::Enum ClientService::runRunning()
 {
-	return true;
+	return Outcome::Retry;
 }

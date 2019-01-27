@@ -1,4 +1,6 @@
 set(files
+        src/Authentication/AuthenticationService.cpp
+        src/Authentication/AuthenticationStorage.cpp
         src/ClientService.cpp
         src/ClientSocket.cpp
         src/ServerSocket.cpp

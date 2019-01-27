@@ -5,9 +5,9 @@
 #ifndef CHAT_UP_CLIENTSERVICE_H
 #define CHAT_UP_CLIENTSERVICE_H
 
-#include <Messaging/MessageReceiver.h>
-#include <Messaging/MessageSender.h>
 #include "ClientSocket.h"
+#include <Messaging/MessageReceiver.h>
+#include "Authentication/AuthenticationService.h"
 
 class ClientService {
 	enum State {
@@ -21,15 +21,16 @@ class ClientService {
 
 	State m_state = StateHandshaking;
 
+	AuthenticationService m_authenticationService = AuthenticationService();
+
 public:
 	explicit ClientService(ClientSocket &socket) noexcept;
 
-	void run();
+	Outcome::Enum run();
 
 private:
-	void runHandshaking(const Message &message);
-	void runAuthenticating(const Message &message);
-	void runRunning(const Message &message);
+	Outcome::Enum runHandshaking(const Message &message);
+	Outcome::Enum runRunning(const Message &message);
 };
 
 

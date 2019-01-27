@@ -1,4 +1,5 @@
 set(files
+        src/Authentication/User.cpp
         src/Config/Config.cpp
         src/Config/ConfigManager.cpp
         src/Socket/IpAddress.cpp

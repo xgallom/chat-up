@@ -25,7 +25,9 @@ int main(int argc, char *argv[])
 
 		ClientService service(socket);
 
-		while(service.run()) {}
+		bool isRunning = true;
+		while(socket.isOpen() && isRunning)
+			isRunning = service.run();
 
 		return EXIT_SUCCESS;
 	} catch(SocketException &e) {

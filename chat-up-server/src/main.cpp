@@ -17,7 +17,8 @@ static void runClientHandler(ClientSocket &&socket, std::atomic_bool &isRunning)
 
 	while(socket.isOpen() && isRunning) {
 		try {
-			service.run();
+			if(!service.run())
+				return;
 		} catch(std::exception &e) {
 			std::cerr << "Exception from client handler: " << e.what() << std::endl;
 			return;

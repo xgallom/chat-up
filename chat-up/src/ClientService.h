@@ -8,6 +8,7 @@
 #include "ClientSocket.h"
 #include <Messaging/MessageReceiver.h>
 #include <Messaging/MessageSender.h>
+#include <Outcome.h>
 
 class ClientService {
 	enum State {
@@ -26,14 +27,14 @@ class ClientService {
 public:
 	explicit ClientService(ClientSocket &socket) noexcept;
 
-	bool run();
+	Outcome::Enum run();
 
 private:
-	bool runHandshaking();
-	bool runHandshakingWaiting();
-	bool runAuthenticating();
-	bool runAuthenticatingWaiting();
-	bool runRunning();
+	Outcome::Enum runHandshaking();
+	Outcome::Enum runHandshakingWaiting();
+	Outcome::Enum runAuthenticating();
+	Outcome::Enum runAuthenticatingWaiting();
+	Outcome::Enum runRunning();
 };
 
 

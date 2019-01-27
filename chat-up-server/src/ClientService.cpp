@@ -11,61 +11,59 @@
 
 ClientService::ClientService(ClientSocket &socket) noexcept : m_receiver(socket), m_sender(socket) {}
 
-void ClientService::run()
+Outcome::Enum ClientService::run()
 {
 	const auto message = m_receiver.receiveMessage();
 
-	if(!message.isValid())
-		return;
+	if(message.isValid()) {
+		switch(m_state) {
+			case StateHandshaking:
+				return runHandshaking(message);
 
-	switch(m_state) {
-		case StateHandshaking:
-			runHandshaking(message);
-			break;
+			case StateAuthenticating: {
+				const auto outcome = m_authenticationService.run(m_sender, message);
 
-		case StateAuthenticating:
-			runAuthenticating(message);
-			break;
+				if(outcome == Outcome::Success)
+					m_state = StateRunning;
 
-		case StateRunning:
-			runRunning(message);
-			break;
+				return outcome;
+			}
+
+			case StateRunning:
+				return runRunning(message);
+		}
 	}
+
+	return Outcome::Retry;
 }
 
-void ClientService::runHandshaking(const Message &message)
+Outcome::Enum ClientService::runHandshaking(const Message &message)
 {
 	if(message.type() == MessageType::Handshake) {
 		const auto &body = message.bodyAs<HandshakeMessageBody>();
 
-		if(body.version.major != MessagingVersion::Major ||
-		   body.version.minor != MessagingVersion::Minor) {
+		if(body.version.major == MessagingVersion::Major &&
+		   body.version.minor == MessagingVersion::Minor) {
+			m_sender.sendMessage<HandshakeSuccessfulMessageBody>(Message::Create<HandshakeSuccessfulMessageBody>());
+
+			m_state = StateAuthenticating;
+
+			return Outcome::Success;
+		}
+		else {
 			auto responseBody = createBody<HandshakeFailedMessageBody>();
+
 			responseBody->version.major = MessagingVersion::Major;
 			responseBody->version.minor = MessagingVersion::Minor;
 
 			m_sender.sendMessage<HandshakeFailedMessageBody>(Message(std::move(responseBody)));
-
-			throw MessageException("Invalid messaging version");
 		}
-
-		m_sender.sendMessage<HandshakeSuccessfulMessageBody>(Message::Create<HandshakeSuccessfulMessageBody>());
-
-		m_state = StateAuthenticating;
 	}
+
+	return Outcome::Failed;
 }
 
-void ClientService::runAuthenticating(const Message &message)
+Outcome::Enum ClientService::runRunning(const Message &message)
 {
-	if(message.type() == MessageType::Authentication) {
-		const auto &body = message.bodyAs<AuthenticationMessageBody>();
-
-		std::cout << "Authentication with\n  Username: " << body.username << "\n  Password: " << body.password
-				  << std::endl;
-	}
-}
-
-void ClientService::runRunning(const Message &message)
-{
-
+	return Outcome::Retry;
 }
