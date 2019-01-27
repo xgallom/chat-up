@@ -9,9 +9,9 @@
 
 namespace MessagingVersion
 {
-	static const uint8_t
-			Major = 0,
-			Minor = 1;
+    static const uint8_t
+            Major = 0,
+            Minor = 1;
 }
 
 #endif //CHAT_UP_VERSION_H

@@ -8,5 +8,5 @@ Config::Config(const Config::ConstIterator a_index) noexcept : index{a_index} {}
 
 std::stringstream Config::value() const noexcept
 {
-	return std::stringstream(index->second);
+    return std::stringstream(index->second);
 }

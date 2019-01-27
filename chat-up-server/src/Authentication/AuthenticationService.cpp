@@ -11,23 +11,23 @@ AuthenticationService::AuthenticationService() noexcept : m_storage(Authenticati
 
 Outcome::Enum AuthenticationService::run(MessageSender &sender, const Message &message)
 {
-	if(message.type() == MessageType::Authentication) {
-		const auto &body = message.bodyAs<AuthenticationMessageBody>();
+    if(message.type() == MessageType::Authentication) {
+        const auto &body = message.bodyAs<AuthenticationMessageBody>();
 
-		std::cout << "Authentication with\n  Username: " << body.user.username << "\n  Password: " << body.user.password
-				  << std::endl;
+        std::cout << "Authentication with\n  Username: " << body.user.username << "\n  Password: " << body.user.password
+                  << std::endl;
 
-		if(m_storage.contains(body.user)) {
-			sender.sendMessage<AuthenticationSuccessfulBody>(Message::Create<AuthenticationSuccessfulBody>());
+        if(m_storage.contains(body.user)) {
+            sender.sendMessage<AuthenticationSuccessfulBody>(Message::Create<AuthenticationSuccessfulBody>());
 
-			return Outcome::Success;
-		}
-		else {
-			sender.sendMessage<AuthenticationFailedBody>(Message::Create<AuthenticationFailedBody>());
+            return Outcome::Success;
+        }
+        else {
+            sender.sendMessage<AuthenticationFailedBody>(Message::Create<AuthenticationFailedBody>());
 
-			return Outcome::Retry;
-		}
-	}
+            return Outcome::Retry;
+        }
+    }
 
-	return Outcome::Failed;
+    return Outcome::Failed;
 }

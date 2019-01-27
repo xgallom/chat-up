@@ -11,30 +11,30 @@
 #include <Outcome.h>
 
 class ClientService {
-	enum State {
-		StateHandshaking,
-		StateHandshakingWaiting,
-		StateAuthenticating,
-		StateAuthenticatingWaiting,
-		StateRunning
-	};
+    enum State {
+        StateHandshaking,
+        StateHandshakingWaiting,
+        StateAuthenticating,
+        StateAuthenticatingWaiting,
+        StateRunning
+    };
 
-	MessageReceiver m_receiver;
-	MessageSender m_sender;
+    MessageReceiver m_receiver;
+    MessageSender m_sender;
 
-	State m_state = StateHandshaking;
+    State m_state = StateHandshaking;
 
 public:
-	explicit ClientService(ClientSocket &socket) noexcept;
+    explicit ClientService(ClientSocket &socket) noexcept;
 
-	Outcome::Enum run();
+    Outcome::Enum run();
 
 private:
-	Outcome::Enum runHandshaking();
-	Outcome::Enum runHandshakingWaiting();
-	Outcome::Enum runAuthenticating();
-	Outcome::Enum runAuthenticatingWaiting();
-	Outcome::Enum runRunning();
+    Outcome::Enum runHandshaking();
+    Outcome::Enum runHandshakingWaiting();
+    Outcome::Enum runAuthenticating();
+    Outcome::Enum runAuthenticatingWaiting();
+    Outcome::Enum runRunning();
 };
 
 

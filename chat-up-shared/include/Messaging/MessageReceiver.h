@@ -10,26 +10,26 @@
 class ReadWriteSocket;
 
 class MessageReceiver {
-	enum State {
-		ReadingOpener,
-		ReadingHeader,
-		ReadingBody
-	};
+    enum State {
+        ReadingOpener,
+        ReadingHeader,
+        ReadingBody
+    };
 
-	ReadWriteSocket &m_socket;
-	State m_state = ReadingOpener;
-	Message m_currentMessage = Message();
-	size_t m_remaining = 1;
+    ReadWriteSocket &m_socket;
+    State m_state = ReadingOpener;
+    Message m_currentMessage = Message();
+    size_t m_remaining = 1;
 
 public:
-	explicit MessageReceiver(ReadWriteSocket &socket) noexcept;
+    explicit MessageReceiver(ReadWriteSocket &socket) noexcept;
 
-	Message receiveMessage();
+    Message receiveMessage();
 
 private:
-	Message readOpener();
-	Message readHeader();
-	Message readBody() noexcept;
+    Message readOpener();
+    Message readHeader();
+    Message readBody() noexcept;
 };
 
 #endif //CHAT_UP_MESSAGERECEIVER_H

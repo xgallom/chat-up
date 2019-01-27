@@ -15,54 +15,54 @@ extern "C" {
 
 ServerSocket::ServerSocket()
 {
-	const int options = 1;
+    const int options = 1;
 
-	if(setsockopt(fd(), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &options, sizeof(options))) {
-		close();
+    if(setsockopt(fd(), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &options, sizeof(options))) {
+        close();
 
-		throw SocketException("Socket configuration failed");
-	}
+        throw SocketException("Socket configuration failed");
+    }
 
-	const int flags = fcntl(fd(), F_GETFL, 0);
+    const int flags = fcntl(fd(), F_GETFL, 0);
 
-	if(flags == -1 || fcntl(fd(), F_SETFL, flags | O_NONBLOCK)) {
-		close();
+    if(flags == -1 || fcntl(fd(), F_SETFL, flags | O_NONBLOCK)) {
+        close();
 
-		throw SocketException("Making socket non-blocking failed");
-	}
+        throw SocketException("Making socket non-blocking failed");
+    }
 }
 
 ServerSocket::ServerSocket(ServerSocket &&o) noexcept : Socket(std::move(o))
 {
-	maxConcurrentConnections = o.maxConcurrentConnections;
+    maxConcurrentConnections = o.maxConcurrentConnections;
 }
 
 void ServerSocket::bind(const SocketAddress &socketAddress)
 {
-	std::cout << "Binding server socket to address " << socketAddress << std::endl;
+    std::cout << "Binding server socket to address " << socketAddress << std::endl;
 
-	const auto address = socketAddress.address();
+    const auto address = socketAddress.address();
 
-	if(::bind(fd(), reinterpret_cast<const sockaddr *>(&address), sizeof(address)))
-		throw SocketException("Socket binding failed");
+    if(::bind(fd(), reinterpret_cast<const sockaddr *>(&address), sizeof(address)))
+        throw SocketException("Socket binding failed");
 }
 
 void ServerSocket::listen(int maxPending)
 {
-	std::cout << "Server socket listening to maximum " << maxPending << " pending connections\n";
+    std::cout << "Server socket listening to maximum " << maxPending << " pending connections\n";
 
-	if(::listen(fd(), maxPending))
-		throw SocketException("Listen failed");
+    if(::listen(fd(), maxPending))
+        throw SocketException("Listen failed");
 }
 
 std::optional<ClientSocket> ServerSocket::accept()
 {
-	int clientSocket = ::accept(fd(), nullptr, nullptr);
+    int clientSocket = ::accept(fd(), nullptr, nullptr);
 
-	if(clientSocket >= 0)
-		return ClientSocket(clientSocket);
-	else if(errno == EWOULDBLOCK)
-		return std::nullopt;
+    if(clientSocket >= 0)
+        return ClientSocket(clientSocket);
+    else if(errno == EWOULDBLOCK)
+        return std::nullopt;
 
-	throw SocketException("Server socket accept failed");
+    throw SocketException("Server socket accept failed");
 }

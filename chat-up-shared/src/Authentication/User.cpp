@@ -7,10 +7,10 @@
 
 bool User::operator<(const User &r) const noexcept
 {
-	return username < r.username || password < r.password;
+    return username < r.username || password < r.password;
 }
 
 bool User::operator==(const User &r) const noexcept
 {
-	return username == r.username && password == r.password;
+    return username == r.username && password == r.password;
 }

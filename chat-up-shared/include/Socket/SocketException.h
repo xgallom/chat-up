@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 struct SocketException : public std::runtime_error {
-	explicit SocketException(const char msg[]) noexcept;
+    explicit SocketException(const char msg[]) noexcept;
 };
 
 #endif //CHAT_UP_SOCKETEXCEPTION_H

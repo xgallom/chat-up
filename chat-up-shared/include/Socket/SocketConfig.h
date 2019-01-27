@@ -10,12 +10,12 @@
 
 class SocketConfig {
 protected:
-	const ConfigManager &m_configManager;
+    const ConfigManager &m_configManager;
 
 public:
-	explicit SocketConfig(const ConfigManager &configManager) noexcept;
+    explicit SocketConfig(const ConfigManager &configManager) noexcept;
 
-	SocketAddress address(IpAddress defaultIp, uint16_t defaultPort) noexcept;
+    SocketAddress address(IpAddress defaultIp, uint16_t defaultPort) noexcept;
 };
 
 #endif //CHAT_UP_SOCKETCONFIG_H

@@ -8,28 +8,28 @@ ServerSocketConfig::ServerSocketConfig(const ConfigManager &configManager) noexc
 
 int ServerSocketConfig::maxPendingConnections(int defaultValue) noexcept
 {
-	const auto valueCfg = m_configManager.find("maxPending");
+    const auto valueCfg = m_configManager.find("maxPending");
 
-	int value;
+    int value;
 
-	if(m_configManager.exists(valueCfg))
-		valueCfg.value() >> value;
-	else
-		value = defaultValue;
+    if(m_configManager.exists(valueCfg))
+        valueCfg.value() >> value;
+    else
+        value = defaultValue;
 
-	return value;
+    return value;
 }
 
 int ServerSocketConfig::maxConcurrentConnections(int defaultValue) noexcept
 {
-	const auto valueCfg = m_configManager.find("maxConcurrent");
+    const auto valueCfg = m_configManager.find("maxConcurrent");
 
-	int value;
+    int value;
 
-	if(m_configManager.exists(valueCfg))
-		valueCfg.value() >> value;
-	else
-		value = defaultValue;
+    if(m_configManager.exists(valueCfg))
+        valueCfg.value() >> value;
+    else
+        value = defaultValue;
 
-	return value;
+    return value;
 }

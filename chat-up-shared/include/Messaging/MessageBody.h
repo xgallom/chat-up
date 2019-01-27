@@ -12,33 +12,33 @@
 #include <Socket/ReadWriteSocket.h>
 
 struct MessageBody {
-	static const MessageType::Enum Type = MessageType::Invalid;
+    static const MessageType::Enum Type = MessageType::Invalid;
 };
 
 template<typename BodyType>
 inline size_t bodySize(const BodyType *) noexcept
 {
-	static_assert(std::is_base_of<MessageBody, BodyType>::value, "Invalid type BodyType");
+    static_assert(std::is_base_of<MessageBody, BodyType>::value, "Invalid type BodyType");
 
-	return sizeof(BodyType);
+    return sizeof(BodyType);
 }
 
 template<typename BodyType>
 inline void writeBody(ReadWriteSocket &socket, const BodyType &body) noexcept
 {
-	static_assert(std::is_base_of<MessageBody, BodyType>::value, "Invalid type BodyType");
+    static_assert(std::is_base_of<MessageBody, BodyType>::value, "Invalid type BodyType");
 
-	const auto buf = reinterpret_cast<const char *>(&body);
+    const auto buf = reinterpret_cast<const char *>(&body);
 
-	socket.write(buf, bodySize<BodyType>(nullptr));
+    socket.write(buf, bodySize<BodyType>(nullptr));
 }
 
 template<typename BodyType>
 inline std::unique_ptr<BodyType> createBody() noexcept
 {
-	static_assert(std::is_base_of<MessageBody, BodyType>::value, "Invalid type BodyType");
+    static_assert(std::is_base_of<MessageBody, BodyType>::value, "Invalid type BodyType");
 
-	return std::make_unique<BodyType>();
+    return std::make_unique<BodyType>();
 }
 
 std::unique_ptr<MessageBody> createBody(uint16_t type);

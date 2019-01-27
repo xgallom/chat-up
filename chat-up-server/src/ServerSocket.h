@@ -13,17 +13,17 @@
 
 class ServerSocket : public Socket {
 public:
-	int maxConcurrentConnections = 0;
+    int maxConcurrentConnections = 0;
 
 public:
-	ServerSocket();
+    ServerSocket();
 
-	ServerSocket(ServerSocket &&) noexcept;
-	ServerSocket &operator =(ServerSocket &&) noexcept = default;
+    ServerSocket(ServerSocket &&) noexcept;
+    ServerSocket &operator=(ServerSocket &&) noexcept = default;
 
-	void bind(const SocketAddress &socketAddress);
-	void listen(int maxPending);
-	std::optional<ClientSocket> accept();
+    void bind(const SocketAddress &socketAddress);
+    void listen(int maxPending);
+    std::optional<ClientSocket> accept();
 };
 
 #endif //CHAT_UP_SERVERSOCKET_H

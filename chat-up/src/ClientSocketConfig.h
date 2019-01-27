@@ -9,7 +9,7 @@
 
 class ClientSocketConfig : public SocketConfig {
 public:
-	ClientSocketConfig(const ConfigManager &configManager) noexcept;
+    ClientSocketConfig(const ConfigManager &configManager) noexcept;
 };
 
 #endif //CHAT_UP_CLIENTSOCKETCONFIG_H

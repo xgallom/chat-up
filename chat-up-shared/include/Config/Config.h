@@ -11,14 +11,14 @@
 
 class Config {
 public:
-	using MapType = std::unordered_map<std::string, std::string>;
-	using ConstIterator = MapType::const_iterator;
+    using MapType = std::unordered_map<std::string, std::string>;
+    using ConstIterator = MapType::const_iterator;
 
-	ConstIterator index;
+    ConstIterator index;
 
-	explicit Config(ConstIterator a_index) noexcept;
+    explicit Config(ConstIterator a_index) noexcept;
 
-	std::stringstream value() const noexcept;
+    std::stringstream value() const noexcept;
 };
 
 #endif //CHAT_UP_CONFIG_H

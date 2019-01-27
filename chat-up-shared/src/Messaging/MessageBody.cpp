@@ -13,23 +13,23 @@
 
 std::unique_ptr<MessageBody> createBody(uint16_t type)
 {
-	static const std::array<std::function<std::unique_ptr<MessageBody>(void)>, MessageType::Size> bodyCreators = {
-			createBody<MessageBody>,
+    static const std::array<std::function<std::unique_ptr<MessageBody>(void)>, MessageType::Size> bodyCreators = {
+            createBody<MessageBody>,
 
-			createBody<HandshakeMessageBody>,
-			createBody<HandshakeSuccessfulMessageBody>,
-			createBody<HandshakeFailedMessageBody>,
+            createBody<HandshakeMessageBody>,
+            createBody<HandshakeSuccessfulMessageBody>,
+            createBody<HandshakeFailedMessageBody>,
 
-			createBody<AuthenticationMessageBody>,
-			createBody<AuthenticationSuccessfulBody>,
-			createBody<AuthenticationFailedBody>
-	};
+            createBody<AuthenticationMessageBody>,
+            createBody<AuthenticationSuccessfulBody>,
+            createBody<AuthenticationFailedBody>
+    };
 
-	if(type < MessageType::Size)
-		return bodyCreators[type]();
+    if(type < MessageType::Size)
+        return bodyCreators[type]();
 
-	std::stringstream ss;
-	ss << "Invalid message type received: " << type;
-	throw MessageException(ss.str().c_str());
+    std::stringstream ss;
+    ss << "Invalid message type received: " << type;
+    throw MessageException(ss.str().c_str());
 }
 

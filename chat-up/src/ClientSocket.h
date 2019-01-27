@@ -10,12 +10,12 @@
 
 class ClientSocket : public ReadWriteSocket {
 public:
-	ClientSocket() = default;
+    ClientSocket() = default;
 
-	ClientSocket(ClientSocket &&) noexcept = default;
-	ClientSocket &operator =(ClientSocket &&) noexcept = default;
+    ClientSocket(ClientSocket &&) noexcept = default;
+    ClientSocket &operator=(ClientSocket &&) noexcept = default;
 
-	void connect(const SocketAddress &socketAddress);
+    void connect(const SocketAddress &socketAddress);
 };
 
 #endif //CHAT_UP_CLIENTSOCKET_H

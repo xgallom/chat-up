@@ -11,22 +11,22 @@
 class ReadWriteSocket;
 
 class MessageSender {
-	ReadWriteSocket &m_socket;
+    ReadWriteSocket &m_socket;
 
 public:
-	explicit MessageSender(ReadWriteSocket &socket) noexcept;
+    explicit MessageSender(ReadWriteSocket &socket) noexcept;
 
-	template<typename BodyType>
-	void sendMessage(const Message &message) const noexcept
-	{
-		m_socket.writeByte(MessageOpener);
+    template<typename BodyType>
+    void sendMessage(const Message &message) const noexcept
+    {
+        m_socket.writeByte(MessageOpener);
 
-		const char *buf = reinterpret_cast<const char *>(&message.header);
+        const char *buf = reinterpret_cast<const char *>(&message.header);
 
-		m_socket.write(buf, sizeof(MessageHeader));
+        m_socket.write(buf, sizeof(MessageHeader));
 
-		writeBody(m_socket, static_cast<const BodyType &>(*message.body));
-	}
+        writeBody(m_socket, static_cast<const BodyType &>(*message.body));
+    }
 };
 
 #endif //CHAT_UP_MESSAGESENDER_H

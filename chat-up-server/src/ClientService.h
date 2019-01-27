@@ -10,27 +10,27 @@
 #include "Authentication/AuthenticationService.h"
 
 class ClientService {
-	enum State {
-		StateHandshaking,
-		StateAuthenticating,
-		StateRunning
-	};
+    enum State {
+        StateHandshaking,
+        StateAuthenticating,
+        StateRunning
+    };
 
-	MessageReceiver m_receiver;
-	MessageSender m_sender;
+    MessageReceiver m_receiver;
+    MessageSender m_sender;
 
-	State m_state = StateHandshaking;
+    State m_state = StateHandshaking;
 
-	AuthenticationService m_authenticationService = AuthenticationService();
+    AuthenticationService m_authenticationService = AuthenticationService();
 
 public:
-	explicit ClientService(ClientSocket &socket) noexcept;
+    explicit ClientService(ClientSocket &socket) noexcept;
 
-	Outcome::Enum run();
+    Outcome::Enum run();
 
 private:
-	Outcome::Enum runHandshaking(const Message &message);
-	Outcome::Enum runRunning(const Message &message);
+    Outcome::Enum runHandshaking(const Message &message);
+    Outcome::Enum runRunning(const Message &message);
 };
 
 

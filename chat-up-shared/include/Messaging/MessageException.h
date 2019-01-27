@@ -8,7 +8,7 @@
 #include<stdexcept>
 
 struct MessageException : public std::runtime_error {
-	MessageException(const char message[]) : std::runtime_error(message) {}
+    MessageException(const char message[]) : std::runtime_error(message) {}
 };
 
 #endif //CHAT_UP_MESSAGEEXCEPTION_H

@@ -7,19 +7,19 @@
 
 namespace MessageType
 {
-	enum Enum {
-		Invalid = 0,
+    enum Enum {
+        Invalid = 0,
 
-		Handshake,
-		HandshakeSuccessful,
-		HandshakeFailed,
+        Handshake,
+        HandshakeSuccessful,
+        HandshakeFailed,
 
-		Authentication,
-		AuthenticationSuccessful,
-		AuthenticationFailed,
+        Authentication,
+        AuthenticationSuccessful,
+        AuthenticationFailed,
 
-		Size
-	};
+        Size
+    };
 }
 
 #endif //CHAT_UP_MESSAGETYPE_H

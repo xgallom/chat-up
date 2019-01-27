@@ -11,21 +11,21 @@
 
 class ReadWriteSocket : public Socket {
 protected:
-	explicit ReadWriteSocket(int socket) noexcept;
+    explicit ReadWriteSocket(int socket) noexcept;
 
 public:
-	ReadWriteSocket() = default;
+    ReadWriteSocket() = default;
 
-	ReadWriteSocket(ReadWriteSocket &&o) noexcept = default;
-	ReadWriteSocket &operator=(ReadWriteSocket &&) noexcept = default;
+    ReadWriteSocket(ReadWriteSocket &&o) noexcept = default;
+    ReadWriteSocket &operator=(ReadWriteSocket &&) noexcept = default;
 
-	int readByte() noexcept;
-	void readWalk(char *&buf, size_t &remaining) noexcept;
+    int readByte() noexcept;
+    void readWalk(char *&buf, size_t &remaining) noexcept;
 
-	void writeByte(char data) noexcept;
-	void write(const char data[]) noexcept;
-	void write(const char *data, size_t length) noexcept;
-	void write(const std::string &data) noexcept;
+    void writeByte(char data) noexcept;
+    void write(const char data[]) noexcept;
+    void write(const char *data, size_t length) noexcept;
+    void write(const std::string &data) noexcept;
 };
 
 #endif //CHAT_UP_READWRITESOCKET_H

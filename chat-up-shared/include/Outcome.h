@@ -7,11 +7,11 @@
 
 namespace Outcome
 {
-	enum Enum {
-		Failed = 0,
-		Success,
-		Retry
-	};
+    enum Enum {
+        Failed = 0,
+        Success,
+        Retry
+    };
 }
 
 #endif //CHAT_UP_OUTCOME_H

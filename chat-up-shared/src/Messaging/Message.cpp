@@ -6,16 +6,16 @@
 
 Message::Message(Message &&o) noexcept
 {
-	std::swap(header, o.header);
-	std::swap(body, o.body);
+    std::swap(header, o.header);
+    std::swap(body, o.body);
 }
 
 uint16_t Message::type() const noexcept
 {
-	return header.type;
+    return header.type;
 }
 
 bool Message::isValid() const noexcept
 {
-	return static_cast<bool>(header.type);
+    return static_cast<bool>(header.type);
 }

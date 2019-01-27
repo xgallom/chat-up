@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 struct ConfigException : public std::logic_error {
-	explicit ConfigException(const char msg[]) noexcept : std::logic_error(msg) {}
+    explicit ConfigException(const char msg[]) noexcept : std::logic_error(msg) {}
 };
 
 #endif //CHAT_UP_CONFIGEXCEPTION_H

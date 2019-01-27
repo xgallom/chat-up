@@ -13,57 +13,57 @@ ClientService::ClientService(ClientSocket &socket) noexcept : m_receiver(socket)
 
 Outcome::Enum ClientService::run()
 {
-	const auto message = m_receiver.receiveMessage();
+    const auto message = m_receiver.receiveMessage();
 
-	if(message.isValid()) {
-		switch(m_state) {
-			case StateHandshaking:
-				return runHandshaking(message);
+    if(message.isValid()) {
+        switch(m_state) {
+            case StateHandshaking:
+                return runHandshaking(message);
 
-			case StateAuthenticating: {
-				const auto outcome = m_authenticationService.run(m_sender, message);
+            case StateAuthenticating: {
+                const auto outcome = m_authenticationService.run(m_sender, message);
 
-				if(outcome == Outcome::Success)
-					m_state = StateRunning;
+                if(outcome == Outcome::Success)
+                    m_state = StateRunning;
 
-				return outcome;
-			}
+                return outcome;
+            }
 
-			case StateRunning:
-				return runRunning(message);
-		}
-	}
+            case StateRunning:
+                return runRunning(message);
+        }
+    }
 
-	return Outcome::Retry;
+    return Outcome::Retry;
 }
 
 Outcome::Enum ClientService::runHandshaking(const Message &message)
 {
-	if(message.type() == MessageType::Handshake) {
-		const auto &body = message.bodyAs<HandshakeMessageBody>();
+    if(message.type() == MessageType::Handshake) {
+        const auto &body = message.bodyAs<HandshakeMessageBody>();
 
-		if(body.version.major == MessagingVersion::Major &&
-		   body.version.minor == MessagingVersion::Minor) {
-			m_sender.sendMessage<HandshakeSuccessfulMessageBody>(Message::Create<HandshakeSuccessfulMessageBody>());
+        if(body.version.major == MessagingVersion::Major &&
+           body.version.minor == MessagingVersion::Minor) {
+            m_sender.sendMessage<HandshakeSuccessfulMessageBody>(Message::Create<HandshakeSuccessfulMessageBody>());
 
-			m_state = StateAuthenticating;
+            m_state = StateAuthenticating;
 
-			return Outcome::Success;
-		}
-		else {
-			auto responseBody = createBody<HandshakeFailedMessageBody>();
+            return Outcome::Success;
+        }
+        else {
+            auto responseBody = createBody<HandshakeFailedMessageBody>();
 
-			responseBody->version.major = MessagingVersion::Major;
-			responseBody->version.minor = MessagingVersion::Minor;
+            responseBody->version.major = MessagingVersion::Major;
+            responseBody->version.minor = MessagingVersion::Minor;
 
-			m_sender.sendMessage<HandshakeFailedMessageBody>(Message(std::move(responseBody)));
-		}
-	}
+            m_sender.sendMessage<HandshakeFailedMessageBody>(Message(std::move(responseBody)));
+        }
+    }
 
-	return Outcome::Failed;
+    return Outcome::Failed;
 }
 
 Outcome::Enum ClientService::runRunning(const Message &message)
 {
-	return Outcome::Retry;
+    return Outcome::Retry;
 }

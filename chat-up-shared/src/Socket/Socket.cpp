@@ -17,57 +17,57 @@ Socket::Socket(int socket) noexcept : m_socket(socket) {}
 
 Socket::Socket()
 {
-	open();
+    open();
 }
 
 Socket::~Socket()
 {
-	close();
+    close();
 }
 
 Socket::Socket(Socket &&o) noexcept
 {
-	m_socket = o.m_socket;
-	o.m_socket = 0;
+    m_socket = o.m_socket;
+    o.m_socket = 0;
 }
 
 void Socket::open()
 {
-	if(isOpen())
-		return;
+    if(isOpen())
+        return;
 
-	std::cout << "Opening socket\n";
+    std::cout << "Opening socket\n";
 
-	m_socket = ::socket(AF_INET, SOCK_STREAM, 0);
+    m_socket = ::socket(AF_INET, SOCK_STREAM, 0);
 
-	if(!IsValid(m_socket)) {
-		m_socket = 0;
-		throw SocketException("Socket creation failed");
-	}
+    if(!IsValid(m_socket)) {
+        m_socket = 0;
+        throw SocketException("Socket creation failed");
+    }
 }
 
 void Socket::close() noexcept
 {
-	if(isOpen()) {
-		std::cout << "Closing socket\n";
+    if(isOpen()) {
+        std::cout << "Closing socket\n";
 
-		::close(m_socket);
-		m_socket = 0;
-	}
+        ::close(m_socket);
+        m_socket = 0;
+    }
 }
 
 bool Socket::isOpen() const noexcept
 {
-	return static_cast<bool>(m_socket);
+    return static_cast<bool>(m_socket);
 }
 
 int Socket::fd() const noexcept
 {
-	return m_socket;
+    return m_socket;
 }
 
 bool Socket::IsValid(int socket) noexcept
 {
-	return socket >= 0;
+    return socket >= 0;
 }
 

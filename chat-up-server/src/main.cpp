@@ -17,125 +17,127 @@ static ServerSocket initialize(int argc, char *argv[]);
 static void run(ServerSocket &server);
 static void runServer(ServerSocket &server, std::atomic_bool &isRunning);
 static void runClientHandler(ClientSocket &&socket, std::atomic_bool &isRunning,
-							 std::vector<std::thread> &clientThreads, std::mutex &clientThreadsMutex);
+                             std::vector<std::thread> &clientThreads, std::mutex &clientThreadsMutex);
 
 int main(int argc, char *argv[])
 {
-	try {
-		ServerSocket server = initialize(argc, argv);
+    try {
+        ServerSocket server = initialize(argc, argv);
 
-		run(server);
+        run(server);
 
-		return EXIT_SUCCESS;
-	} catch(std::exception &e) {
-		std::cerr << e.what() << std::endl;
+        return EXIT_SUCCESS;
+    } catch(std::exception &e) {
+        std::cerr << e.what() << std::endl;
 
-		return EXIT_FAILURE;
-	}
+        return EXIT_FAILURE;
+    }
 }
 
 static ServerSocket initialize(int argc, char *argv[])
 {
-	ConfigManager configManager("server.cfg", argc, argv);
-	ServerSocketConfig serverConfig(configManager);
+    ConfigManager configManager("server.cfg", argc, argv);
+    ServerSocketConfig serverConfig(configManager);
 
-	ServerSocket server;
+    ServerSocket server;
 
-	server.bind(serverConfig.address(IpAddress::Any(), SocketAddress::DefaultPort()));
+    server.bind(serverConfig.address(IpAddress::Any(), SocketAddress::DefaultPort()));
 
-	server.listen(serverConfig.maxPendingConnections(4));
+    server.listen(serverConfig.maxPendingConnections(4));
 
-	server.maxConcurrentConnections = serverConfig.maxConcurrentConnections(4);
-	std::cout << "Server maximum concurrent connections: " << server.maxConcurrentConnections << std::endl;
+    server.maxConcurrentConnections = serverConfig.maxConcurrentConnections(4);
+    std::cout << "Server maximum concurrent connections: " << server.maxConcurrentConnections << std::endl;
 
-	std::cout << std::endl;
+    std::cout << std::endl;
 
-	return server;
+    return server;
 }
 
 static void run(ServerSocket &server)
 {
-	std::atomic_bool isRunning(true);
+    std::atomic_bool isRunning(true);
 
-	auto serverThread = std::thread(runServer,
-									std::ref(server),
-									std::ref(isRunning)
-	);
+    auto serverThread = std::thread(runServer,
+                                    std::ref(server),
+                                    std::ref(isRunning)
+    );
 
-	std::cin.get();
+    std::cin.get();
 
-	isRunning = false;
-	serverThread.join();
+    isRunning = false;
+    serverThread.join();
 }
 
 static void runServer(ServerSocket &server, std::atomic_bool &isRunning)
 {
-	std::vector<std::thread> clientThreads;
-	std::mutex clientThreadsMutex;
+    std::vector<std::thread> clientThreads;
+    std::mutex clientThreadsMutex;
 
-	while(isRunning) {
-		{
-			std::lock_guard lockGuard(clientThreadsMutex);
+    while(isRunning) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-			if(static_cast<int>(clientThreads.size()) >= server.maxConcurrentConnections)
-				continue;
-		}
+        {
+            std::lock_guard lockGuard(clientThreadsMutex);
 
-		auto clientSocket = server.accept();
+            if(static_cast<int>(clientThreads.size()) >= server.maxConcurrentConnections)
+                continue;
+        }
 
-		if(clientSocket) {
-			std::lock_guard lockGuard(clientThreadsMutex);
+        auto clientSocket = server.accept();
 
-			clientThreads.emplace_back(runClientHandler,
-									   std::move(*clientSocket),
-									   std::ref(isRunning),
-									   std::ref(clientThreads),
-									   std::ref(clientThreadsMutex)
-			);
-		}
-	}
+        if(clientSocket) {
+            std::lock_guard lockGuard(clientThreadsMutex);
 
-	for(;;) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            clientThreads.emplace_back(runClientHandler,
+                                       std::move(*clientSocket),
+                                       std::ref(isRunning),
+                                       std::ref(clientThreads),
+                                       std::ref(clientThreadsMutex)
+            );
+        }
+    }
 
-		std::lock_guard lockGuard(clientThreadsMutex);
+    for(;;) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-		if(clientThreads.empty())
-			return;
-	}
+        std::lock_guard lockGuard(clientThreadsMutex);
+
+        if(clientThreads.empty())
+            return;
+    }
 }
 
 static void
 runClientHandler(ClientSocket &&socket, std::atomic_bool &isRunning, std::vector<std::thread> &clientThreads,
-				 std::mutex &clientThreadsMutex)
+                 std::mutex &clientThreadsMutex)
 {
-	ClientService service(socket);
+    ClientService service(socket);
 
-	while(socket.isOpen() && isRunning) {
-		try {
-			if(!service.run())
-				break;
-		} catch(std::exception &e) {
-			std::cerr << "Exception from client handler: " << e.what() << std::endl;
+    while(socket.isOpen() && isRunning) {
+        try {
+            if(!service.run())
+                break;
+        } catch(std::exception &e) {
+            std::cerr << "Exception from client handler: " << e.what() << std::endl;
 
-			break;
-		}
+            break;
+        }
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	}
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 
-	std::lock_guard lockGuard(clientThreadsMutex);
+    std::lock_guard lockGuard(clientThreadsMutex);
 
-	auto rend = std::remove_if(clientThreads.begin(), clientThreads.end(),
-							   [id = std::this_thread::get_id()](std::thread &thread) {
-								   if(thread.get_id() == id) {
-									   thread.detach();
-									   return true;
-								   }
+    auto rend = std::remove_if(clientThreads.begin(), clientThreads.end(),
+                               [id = std::this_thread::get_id()](std::thread &thread) {
+                                   if(thread.get_id() == id) {
+                                       thread.detach();
+                                       return true;
+                                   }
 
-								   return false;
-							   }
-	);
+                                   return false;
+                               }
+    );
 
-	clientThreads.erase(rend, clientThreads.end());
+    clientThreads.erase(rend, clientThreads.end());
 }

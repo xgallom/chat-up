@@ -8,20 +8,20 @@
 #include "IpAddress.h"
 
 class SocketAddress {
-	sockaddr_in m_address;
+    sockaddr_in m_address;
 
 public:
-	constexpr SocketAddress(const IpAddress ipAddress, uint16_t port) noexcept :
-			m_address{
-					AF_INET,
-					port,
-					{ipAddress.address},
-					{}
-			} {}
+    constexpr SocketAddress(const IpAddress ipAddress, uint16_t port) noexcept :
+            m_address{
+                    AF_INET,
+                    port,
+                    {ipAddress.address},
+                    {}
+            } {}
 
-	sockaddr_in address() const noexcept;
+    sockaddr_in address() const noexcept;
 
-	static constexpr uint16_t DefaultPort() noexcept { return 8080; }
+    static constexpr uint16_t DefaultPort() noexcept { return 8080; }
 };
 
 std::ostream &operator<<(std::ostream &os, const SocketAddress &socketAddress);

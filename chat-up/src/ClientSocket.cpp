@@ -14,10 +14,10 @@ extern "C" {
 
 void ClientSocket::connect(const SocketAddress &socketAddress)
 {
-	std::cout << "Connecting to " << socketAddress << std::endl;
+    std::cout << "Connecting to " << socketAddress << std::endl;
 
-	const auto address = socketAddress.address();
+    const auto address = socketAddress.address();
 
-	if(::connect(fd(), reinterpret_cast<const sockaddr *>(&address), sizeof(address)))
-		throw SocketException("Socket connection failed");
+    if(::connect(fd(), reinterpret_cast<const sockaddr *>(&address), sizeof(address)))
+        throw SocketException("Socket connection failed");
 }

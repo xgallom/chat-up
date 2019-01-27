@@ -12,12 +12,12 @@
 class AuthenticationStorage;
 
 class AuthenticationService {
-	AuthenticationStorage &m_storage;
+    AuthenticationStorage &m_storage;
 
 public:
-	AuthenticationService() noexcept;
+    AuthenticationService() noexcept;
 
-	Outcome::Enum run(MessageSender &sender, const Message &message);
+    Outcome::Enum run(MessageSender &sender, const Message &message);
 };
 
 

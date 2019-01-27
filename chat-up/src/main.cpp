@@ -15,25 +15,25 @@
 
 int main(int argc, char *argv[])
 {
-	try {
-		ConfigManager configManager("config.cfg", argc, argv);
-		ClientSocketConfig socketConfig(configManager);
+    try {
+        ConfigManager configManager("config.cfg", argc, argv);
+        ClientSocketConfig socketConfig(configManager);
 
-		ClientSocket socket;
+        ClientSocket socket;
 
-		socket.connect(socketConfig.address(IpAddress::LocalHost(), SocketAddress::DefaultPort()));
+        socket.connect(socketConfig.address(IpAddress::LocalHost(), SocketAddress::DefaultPort()));
 
-		ClientService service(socket);
+        ClientService service(socket);
 
-		bool isRunning = true;
-		while(socket.isOpen() && isRunning)
-			isRunning = service.run();
+        bool isRunning = true;
+        while(socket.isOpen() && isRunning)
+            isRunning = service.run();
 
-		return EXIT_SUCCESS;
-	} catch(SocketException &e) {
-		std::cerr << e.what() << std::endl;
-	}
+        return EXIT_SUCCESS;
+    } catch(SocketException &e) {
+        std::cerr << e.what() << std::endl;
+    }
 
-	return EXIT_FAILURE;
+    return EXIT_FAILURE;
 }
 
