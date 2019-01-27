@@ -12,7 +12,6 @@
 class ServerSocket : public Socket {
 public:
 	ServerSocket() = default;
-	~ServerSocket() = default;
 
 	ServerSocket(ServerSocket &&) noexcept = default;
 	ServerSocket &operator =(ServerSocket &&) noexcept = default;

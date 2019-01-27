@@ -5,9 +5,9 @@
 #ifndef CHAT_UP_CLIENTSOCKET_H
 #define CHAT_UP_CLIENTSOCKET_H
 
-#include <Socket/Socket.h>
+#include <Socket/ReadWriteSocket.h>
 
-class ClientSocket : public Socket {
+class ClientSocket : public ReadWriteSocket {
 public:
 	explicit ClientSocket(int socket) noexcept;
 

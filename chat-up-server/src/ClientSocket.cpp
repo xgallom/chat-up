@@ -4,4 +4,4 @@
 
 #include "ClientSocket.h"
 
-ClientSocket::ClientSocket(int socket) noexcept : Socket(socket) {}
+ClientSocket::ClientSocket(int socket) noexcept : ReadWriteSocket(socket) {}

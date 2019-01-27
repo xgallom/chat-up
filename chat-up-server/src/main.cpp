@@ -1,13 +1,38 @@
 #include "ServerSocket.h"
 #include "ServerSocketConfig.h"
+#include "ClientService.h"
+
 #include <Socket/SocketException.h>
 
-#include <netinet/in.h>
 #include <iostream>
 #include <cstdlib>
 #include <memory>
 #include <atomic>
 #include <thread>
+#include <exception>
+
+static void runClientHandler(ClientSocket &&socket, std::atomic_bool &isRunning)
+{
+	ClientService service(socket);
+
+	while(socket.isOpen() && isRunning) {
+		try {
+			service.run();
+		} catch(std::exception &e) {
+			std::cerr << "Exception from client handler: " << e.what() << std::endl;
+			return;
+		}
+	}
+}
+
+static void runServer(ServerSocket &server, std::atomic_bool &isRunning, std::vector<std::thread> &clientThreads)
+{
+	while(isRunning) {
+		ClientSocket clientSocket = server.accept();
+
+		clientThreads.emplace_back(runClientHandler, std::move(clientSocket), std::ref(isRunning));
+	}
+}
 
 static ServerSocket initialize(int argc, char *argv[])
 {
@@ -21,20 +46,6 @@ static ServerSocket initialize(int argc, char *argv[])
 	server.listen(socketConfig.maxPendingConnections(4));
 
 	return server;
-}
-
-static void runClientHandler(ClientSocket &&socket)
-{
-
-}
-
-static void runServer(ServerSocket &server, std::atomic_bool &isRunning, std::vector<std::thread> &clientThreads)
-{
-	while(isRunning) {
-		ClientSocket clientSocket = server.accept();
-
-		clientThreads.emplace_back(runClientHandler, std::move(clientSocket));
-	}
 }
 
 static void run(ServerSocket &server)
@@ -61,10 +72,10 @@ int main(int argc, char *argv[])
 		run(server);
 
 		return EXIT_SUCCESS;
-	} catch(SocketException &e) {
+	} catch(std::exception &e) {
 		std::cerr << e.what() << std::endl;
-	}
 
-	return EXIT_FAILURE;
+		return EXIT_FAILURE;
+	}
 }
 
