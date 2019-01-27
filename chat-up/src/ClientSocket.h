@@ -5,10 +5,10 @@
 #ifndef CHAT_UP_CLIENTSOCKET_H
 #define CHAT_UP_CLIENTSOCKET_H
 
-#include <Socket/Socket.h>
+#include <Socket/ReadWriteSocket.h>
 #include <Socket/SocketAddress.h>
 
-class ClientSocket : public Socket {
+class ClientSocket : public ReadWriteSocket {
 public:
 	ClientSocket() = default;
 

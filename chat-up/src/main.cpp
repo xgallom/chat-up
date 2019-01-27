@@ -4,21 +4,28 @@
 
 #include "ClientSocket.h"
 #include "ClientSocketConfig.h"
-#include <Socket/SocketException.h>
+#include "ClientService.h"
 
-#include <netinet/in.h>
 #include <iostream>
-#include <cstdlib>
+
+#include <Messaging/MessageSender.h>
+#include <Messaging/Messages/Handshake.h>
+#include <Messaging/Version.h>
+#include <Socket/SocketException.h>
 
 int main(int argc, char *argv[])
 {
 	try {
-		ConfigManager configManager("server.cfg", argc, argv);
+		ConfigManager configManager("config.cfg", argc, argv);
 		ClientSocketConfig socketConfig(configManager);
 
 		ClientSocket socket;
 
 		socket.connect(socketConfig.address(IpAddress::LocalHost(), SocketAddress::DefaultPort()));
+
+		ClientService service(socket);
+
+		while(service.run()) {}
 
 		return EXIT_SUCCESS;
 	} catch(SocketException &e) {
