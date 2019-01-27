@@ -1,13 +1,16 @@
 set(files
         src/Config/Config.cpp
-        src/Config/ConfigException.cpp
         src/Config/ConfigManager.cpp
         src/Socket/IpAddress.cpp
+        src/Socket/ReadWriteSocket.cpp
         src/Socket/Socket.cpp
         src/Socket/SocketAddress.cpp
         src/Socket/SocketConfig.cpp
         src/Socket/SocketException.cpp
         src/Messaging/Message.cpp
+        src/Messaging/MessageBody.cpp
+        src/Messaging/MessageReceiver.cpp
+        src/Messaging/MessageSender.cpp
         )
 
 add_library(chat-up-shared STATIC ${files})

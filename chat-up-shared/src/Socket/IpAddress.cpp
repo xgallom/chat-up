@@ -7,7 +7,7 @@
 
 IpAddress::IpAddress(const std::string &addressString) noexcept
 {
-	if(inet_pton(AF_INET, addressString.data(), &address) != 1)
+	if(inet_pton(AF_INET, addressString.c_str(), &address) != 1)
 		*this = Invalid();
 }
 
