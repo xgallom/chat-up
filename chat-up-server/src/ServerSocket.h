@@ -9,7 +9,7 @@
 #include <Socket/SocketAddress.h>
 #include "ClientSocket.h"
 
-#include <optional>
+#include <memory>
 
 class ServerSocket : public Socket {
 public:
@@ -23,7 +23,7 @@ public:
 
     void bind(const SocketAddress &socketAddress);
     void listen(int maxPending);
-    std::optional<ClientSocket> accept();
+    std::unique_ptr<ClientSocket> accept();
 };
 
 #endif //CHAT_UP_SERVERSOCKET_H

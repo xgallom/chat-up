@@ -33,12 +33,12 @@ inline void writeBody(ReadWriteSocket &socket, const BodyType &body) noexcept
     socket.write(buf, bodySize<BodyType>(nullptr));
 }
 
-template<typename BodyType>
-inline std::unique_ptr<BodyType> createBody() noexcept
+template<typename BodyType, typename ... Args>
+inline std::unique_ptr<BodyType> createBody(Args &&... args) noexcept
 {
     static_assert(std::is_base_of<MessageBody, BodyType>::value, "Invalid type BodyType");
 
-    return std::make_unique<BodyType>();
+    return std::make_unique<BodyType>(std::forward<Args>(args) ...);
 }
 
 std::unique_ptr<MessageBody> createBody(uint16_t type);

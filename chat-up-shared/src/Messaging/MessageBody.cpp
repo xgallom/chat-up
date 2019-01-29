@@ -9,6 +9,7 @@
 #include <functional>
 #include <Messaging/Messages/Handshake.h>
 #include <Messaging/Messages/Authentication.h>
+#include <Messaging/Messages/Content.h>
 #include <sstream>
 
 std::unique_ptr<MessageBody> createBody(uint16_t type)
@@ -22,7 +23,11 @@ std::unique_ptr<MessageBody> createBody(uint16_t type)
 
             createBody<AuthenticationMessageBody>,
             createBody<AuthenticationSuccessfulBody>,
-            createBody<AuthenticationFailedBody>
+            createBody<AuthenticationFailedBody>,
+
+            createBody<RegisterMessageBody>,
+
+            createBody<TextContentMessageBody>
     };
 
     if(type < MessageType::Size)

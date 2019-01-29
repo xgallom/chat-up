@@ -3,6 +3,7 @@
 //
 
 #include "ClientSocket.h"
+#include "Ui.h"
 #include <Socket/SocketException.h>
 
 extern "C" {
@@ -10,14 +11,26 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include <iostream>
+#include <csignal>
+
+ClientSocket::ClientSocket()
+{
+    signal(SIGPIPE, SIG_IGN);
+}
 
 void ClientSocket::connect(const SocketAddress &socketAddress)
 {
-    std::cout << "Connecting to " << socketAddress << std::endl;
+    std::stringstream ss;
+    ss << "Connecting to " << socketAddress;
+
+    auto messageWindow = Ui::Window::MessagePrompt(ss.str().c_str(), "Connecting", Ui::MessageInfo);
+    messageWindow.refresh();
 
     const auto address = socketAddress.address();
 
-    if(::connect(fd(), reinterpret_cast<const sockaddr *>(&address), sizeof(address)))
+    if(::connect(fd(), reinterpret_cast<const sockaddr *>(&address), sizeof(address))) {
+        Ui::MessagePrompt("Couldn't connect to server.", "Error", Ui::MessageError);
+
         throw SocketException("Socket connection failed");
+    }
 }

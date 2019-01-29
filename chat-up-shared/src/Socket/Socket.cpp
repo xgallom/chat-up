@@ -49,8 +49,6 @@ void Socket::open()
 void Socket::close() noexcept
 {
     if(isOpen()) {
-        std::cout << "Closing socket\n";
-
         ::close(m_socket);
         m_socket = 0;
     }

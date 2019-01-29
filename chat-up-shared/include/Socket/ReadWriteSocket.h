@@ -8,16 +8,16 @@
 #include "Socket.h"
 #include <cstddef>
 #include <string>
+#include <mutex>
 
 class ReadWriteSocket : public Socket {
+    std::mutex m_accessMutex = std::mutex();
+
 protected:
     explicit ReadWriteSocket(int socket) noexcept;
 
 public:
     ReadWriteSocket() = default;
-
-    ReadWriteSocket(ReadWriteSocket &&o) noexcept = default;
-    ReadWriteSocket &operator=(ReadWriteSocket &&) noexcept = default;
 
     int readByte() noexcept;
     void readWalk(char *&buf, size_t &remaining) noexcept;

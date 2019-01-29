@@ -6,4 +6,3 @@
 
 ClientSocketConfig::ClientSocketConfig(const ConfigManager &configManager) noexcept : SocketConfig(configManager) {}
 
-

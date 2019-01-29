@@ -55,14 +55,14 @@ void ServerSocket::listen(int maxPending)
         throw SocketException("Listen failed");
 }
 
-std::optional<ClientSocket> ServerSocket::accept()
+std::unique_ptr<ClientSocket> ServerSocket::accept()
 {
     int clientSocket = ::accept(fd(), nullptr, nullptr);
 
     if(clientSocket >= 0)
-        return ClientSocket(clientSocket);
+        return std::make_unique<ClientSocket>(clientSocket);
     else if(errno == EWOULDBLOCK)
-        return std::nullopt;
+        return nullptr;
 
     throw SocketException("Server socket accept failed");
 }

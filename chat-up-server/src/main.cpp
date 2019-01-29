@@ -16,8 +16,9 @@
 static ServerSocket initialize(int argc, char *argv[]);
 static void run(ServerSocket &server);
 static void runServer(ServerSocket &server, std::atomic_bool &isRunning);
-static void runClientHandler(ClientSocket &&socket, std::atomic_bool &isRunning,
-                             std::vector<std::thread> &clientThreads, std::mutex &clientThreadsMutex);
+static void runClientHandler(std::unique_ptr<ClientSocket> &&socket, std::atomic_bool &isRunning,
+                             std::vector<std::thread> &clientThreads, std::vector<ClientService *> &clientServices,
+                             std::mutex &clientThreadsMutex);
 
 int main(int argc, char *argv[])
 {
@@ -71,6 +72,7 @@ static void run(ServerSocket &server)
 static void runServer(ServerSocket &server, std::atomic_bool &isRunning)
 {
     std::vector<std::thread> clientThreads;
+    std::vector<ClientService *> clientServices;
     std::mutex clientThreadsMutex;
 
     while(isRunning) {
@@ -89,9 +91,10 @@ static void runServer(ServerSocket &server, std::atomic_bool &isRunning)
             std::lock_guard lockGuard(clientThreadsMutex);
 
             clientThreads.emplace_back(runClientHandler,
-                                       std::move(*clientSocket),
+                                       std::move(clientSocket),
                                        std::ref(isRunning),
                                        std::ref(clientThreads),
+                                       std::ref(clientServices),
                                        std::ref(clientThreadsMutex)
             );
         }
@@ -108,36 +111,52 @@ static void runServer(ServerSocket &server, std::atomic_bool &isRunning)
 }
 
 static void
-runClientHandler(ClientSocket &&socket, std::atomic_bool &isRunning, std::vector<std::thread> &clientThreads,
-                 std::mutex &clientThreadsMutex)
+runClientHandler(std::unique_ptr<ClientSocket> &&socket, std::atomic_bool &isRunning, std::vector<std::thread> &clientThreads,
+                 std::vector<ClientService *> &clientServices, std::mutex &clientThreadsMutex)
 {
-    ClientService service(socket);
+    ClientService service(*socket, {std::ref(clientServices), std::ref(clientThreadsMutex)});
 
-    while(socket.isOpen() && isRunning) {
-        try {
-            if(!service.run())
-                break;
-        } catch(std::exception &e) {
+    {
+        std::lock_guard lockGuard(clientThreadsMutex);
+        clientServices.push_back(&service);
+    }
+
+    while(socket->isOpen() && isRunning) {
+        //try {
+        if(!service.run())
+            break;
+        /*} catch(std::exception &e) {
             std::cerr << "Exception from client handler: " << e.what() << std::endl;
 
             break;
-        }
+        }*/
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     std::lock_guard lockGuard(clientThreadsMutex);
 
-    auto rend = std::remove_if(clientThreads.begin(), clientThreads.end(),
-                               [id = std::this_thread::get_id()](std::thread &thread) {
-                                   if(thread.get_id() == id) {
-                                       thread.detach();
-                                       return true;
-                                   }
+    {
+        const auto rend = std::remove_if(clientThreads.begin(), clientThreads.end(),
+                                         [id = std::this_thread::get_id()](std::thread &thread) {
+                                             if(thread.get_id() == id) {
+                                                 thread.detach();
+                                                 return true;
+                                             }
 
-                                   return false;
-                               }
-    );
+                                             return false;
+                                         }
+        );
 
-    clientThreads.erase(rend, clientThreads.end());
+        clientThreads.erase(rend, clientThreads.end());
+    }
+
+    {
+        const auto rend = std::remove_if(clientServices.begin(), clientServices.end(),
+                                         [&service](ClientService *clientService) {
+                                             return &service == clientService;
+                                         });
+
+        clientServices.erase(rend, clientServices.end());
+    }
 }

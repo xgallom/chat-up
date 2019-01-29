@@ -22,4 +22,10 @@ struct AuthenticationFailedBody : public MessageBody {
     static const MessageType::Enum Type = MessageType::AuthenticationFailed;
 };
 
+struct RegisterMessageBody : public MessageBody {
+    static const MessageType::Enum Type = MessageType::Register;
+
+    User user = User();
+};
+
 #endif //CHAT_UP_AUTHENTICATION_H

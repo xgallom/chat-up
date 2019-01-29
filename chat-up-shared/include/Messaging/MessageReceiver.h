@@ -26,6 +26,8 @@ public:
 
     Message receiveMessage();
 
+    bool isOpen() const noexcept;
+
 private:
     Message readOpener();
     Message readHeader();

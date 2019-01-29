@@ -18,6 +18,8 @@ Outcome::Enum AuthenticationService::run(MessageSender &sender, const Message &m
                   << std::endl;
 
         if(m_storage.contains(body.user)) {
+            m_user = body.user;
+
             sender.sendMessage<AuthenticationSuccessfulBody>(Message::Create<AuthenticationSuccessfulBody>());
 
             return Outcome::Success;
@@ -30,4 +32,9 @@ Outcome::Enum AuthenticationService::run(MessageSender &sender, const Message &m
     }
 
     return Outcome::Failed;
+}
+
+User AuthenticationService::user() const noexcept
+{
+    return m_user;
 }

@@ -18,6 +18,10 @@ namespace MessageType
         AuthenticationSuccessful,
         AuthenticationFailed,
 
+        Register,
+
+        TextContent,
+
         Size
     };
 }

@@ -25,6 +25,11 @@ Message MessageReceiver::receiveMessage()
     return Message();
 }
 
+bool MessageReceiver::isOpen() const noexcept
+{
+    return m_socket.isOpen();
+}
+
 Message MessageReceiver::readOpener()
 {
     const auto readResult = m_socket.readByte();

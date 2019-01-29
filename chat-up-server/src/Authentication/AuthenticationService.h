@@ -8,16 +8,20 @@
 #include <Messaging/Message.h>
 #include <Messaging/MessageSender.h>
 #include <Outcome.h>
+#include <Authentication/User.h>
 
 class AuthenticationStorage;
 
 class AuthenticationService {
     AuthenticationStorage &m_storage;
+    User m_user = User();
 
 public:
     AuthenticationService() noexcept;
 
     Outcome::Enum run(MessageSender &sender, const Message &message);
+
+    User user() const noexcept;
 };
 
 

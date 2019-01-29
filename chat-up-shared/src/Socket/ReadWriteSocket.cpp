@@ -52,6 +52,8 @@ void ReadWriteSocket::write(const char data[]) noexcept
 
 void ReadWriteSocket::write(const char *data, size_t length) noexcept
 {
+    std::lock_guard lockGuard(m_accessMutex);
+
     while(length) {
         const auto sendResult = send(fd(), data, length, 0);
 

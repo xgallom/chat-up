@@ -9,24 +9,24 @@
 #include <istream>
 
 struct User {
-    std::array<char, 16>
-            username = {},
-            password = {};
+	std::array<char, 16>
+	        username = {},
+			password = {};
 
-    bool operator<(const User &r) const noexcept;
-    bool operator==(const User &r) const noexcept;
+	bool operator<(const User &r) const noexcept;
+	bool operator==(const User &r) const noexcept;
 };
 
 template<size_t N>
 std::ostream &operator<<(std::ostream &os, const std::array<char, N> &x)
 {
-    return os << x.cbegin();
+	return os << x.cbegin();
 }
 
-template<size_t N>
-void getline(std::istream &is, std::array<char, N> &x)
+template<size_t N, typename T>
+inline void copy(std::array<char, N> &a, const T &s)
 {
-    is.getline(x.begin(), static_cast<std::streamsize>(x.size()));
+	std::copy(s.cbegin(), s.cend(), a.begin());
 }
 
 #endif //CHAT_UP_USER_H

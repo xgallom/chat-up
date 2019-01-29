@@ -7,9 +7,11 @@
 #include <Messaging/MessageException.h>
 #include <Messaging/Messages/Authentication.h>
 #include <iostream>
+#include <Messaging/Messages/Content.h>
 #include "ClientService.h"
 
-ClientService::ClientService(ClientSocket &socket) noexcept : m_receiver(socket), m_sender(socket) {}
+ClientService::ClientService(ClientSocket &socket, const Broadcast &broadcast) noexcept
+        : m_receiver(socket), m_sender(socket), m_broadcast(broadcast) {}
 
 Outcome::Enum ClientService::run()
 {
@@ -65,5 +67,20 @@ Outcome::Enum ClientService::runHandshaking(const Message &message)
 
 Outcome::Enum ClientService::runRunning(const Message &message)
 {
+    if(message.type() == MessageType::TextContent) {
+        const auto &body = message.bodyAs<TextContentMessageBody>();
+
+        std::cout << "Message from " << m_authenticationService.user().username << ": " << body.content.message
+                  << std::endl;
+
+        Message broadcastMessage(std::make_unique<TextContentMessageBody>(body));
+        {
+            std::lock_guard lockGuard(m_broadcast.second);
+
+            for(auto &broadcastSender : m_broadcast.first)
+                broadcastSender->m_sender.sendMessage<TextContentMessageBody>(broadcastMessage);
+        }
+    }
+
     return Outcome::Retry;
 }
