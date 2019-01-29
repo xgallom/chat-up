@@ -36,22 +36,28 @@ bool AuthenticationStorage::insert(const User &user) noexcept
 {
     std::unique_lock lock(m_accessMutex);
 
-    if(containsUnsafe(user))
+    auto i = std::lower_bound(m_users.cbegin(), m_users.cend(), user, [](const User &l, const User &r) {
+        return l.username < r.username;
+    });
+
+    if(i == m_users.cend() || *i != user) {
+        m_users.insert(i, user);
+
+        update();
+
+        return true;
+    }
+    else
         return false;
-
-    m_users.push_back(user);
-    std::sort(m_users.begin(), m_users.end());
-
-    update();
-
-    return true;
 }
 
-bool AuthenticationStorage::remove(const User &user) noexcept
+bool AuthenticationStorage::remove(const User &user, bool byName) noexcept
 {
     std::unique_lock lock(m_accessMutex);
 
-    auto i = std::find(m_users.begin(), m_users.end(), user);
+    auto i = std::find_if(m_users.begin(), m_users.end(), [byName, &user](const User &u) {
+        return byName ? user.username == u.username : user == u;
+    });
 
     if(i == m_users.end())
         return false;
@@ -62,16 +68,52 @@ bool AuthenticationStorage::remove(const User &user) noexcept
     return true;
 }
 
-bool AuthenticationStorage::contains(const User &user) noexcept
+bool AuthenticationStorage::contains(const User &user) const noexcept
 {
     std::shared_lock lock(m_accessMutex);
 
-    return containsUnsafe(user) || user == DefaultUser;
+    return std::binary_search(m_users.cbegin(), m_users.cend(), user) || user == DefaultUser;
 }
 
-bool AuthenticationStorage::containsUnsafe(const User &user) noexcept
+void AuthenticationStorage::list(std::ostream &os) const noexcept
 {
-    return std::binary_search(m_users.cbegin(), m_users.cend(), user);
+    std::shared_lock lock(m_accessMutex);
+
+    os << "{\n";
+
+    for(const auto &i : m_users) {
+        os << "  {" << i.username << ", " << i.password << "}\n";
+    }
+
+    os << "}\n";
+}
+
+void AuthenticationStorage::list(std::ostream &os, User user) const noexcept
+{
+    std::shared_lock lock(m_accessMutex);
+
+    auto begin = std::lower_bound(m_users.begin(), m_users.end(), user, [](const User &l, const User &r) {
+        return l.username < r.username;
+    });
+
+    {
+        auto i = user.username.begin() + 1;
+        for(; i != user.username.end() && *i != '\0'; ++i) {}
+
+        (*--i)++;
+    }
+
+    auto end = std::upper_bound(begin, m_users.end(), user, [](const User &l, const User &r) {
+        return l.username < r.username;
+    });
+
+    os << "{\n";
+
+    for(auto i = begin; i != end; ++i) {
+        os << "  {" << i->username << ", " << i->password << "}\n";
+    }
+
+    os << "}\n";
 }
 
 void AuthenticationStorage::update() noexcept

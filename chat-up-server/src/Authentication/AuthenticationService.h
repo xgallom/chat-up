@@ -21,6 +21,8 @@ public:
 
     Outcome::Enum run(MessageSender &sender, const Message &message);
 
+    bool registerUser(const User &user);
+
     User user() const noexcept;
 };
 

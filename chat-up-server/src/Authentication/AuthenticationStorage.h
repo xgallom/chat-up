@@ -11,20 +11,22 @@
 
 class AuthenticationStorage {
 private:
-    std::vector<User> m_users = std::vector<User>();
-    std::shared_mutex m_accessMutex = std::shared_mutex();
+    using Users = std::vector<User>;
+    Users m_users = std::vector<User>();
+    mutable std::shared_mutex m_accessMutex = std::shared_mutex();
 
 public:
     AuthenticationStorage() noexcept;
 
     bool insert(const User &user) noexcept;
-    bool remove(const User &user) noexcept;
+    bool remove(const User &user, bool byName = false) noexcept;
 
-    bool contains(const User &user) noexcept;
+    bool contains(const User &user) const noexcept;
+
+    void list(std::ostream &os) const noexcept;
+    void list(std::ostream &os, User user) const noexcept;
 
 private:
-    bool containsUnsafe(const User &user) noexcept;
-
     void update() noexcept;
 
 public:

@@ -55,7 +55,7 @@ void ReadWriteSocket::write(const char *data, size_t length) noexcept
     std::lock_guard lockGuard(m_accessMutex);
 
     while(length) {
-        const auto sendResult = send(fd(), data, length, 0);
+        const auto sendResult = send(fd(), data, length, MSG_NOSIGNAL);
 
         if(sendResult >= 0) {
             const auto bytesSent = static_cast<size_t>(sendResult);
@@ -63,8 +63,11 @@ void ReadWriteSocket::write(const char *data, size_t length) noexcept
             length -= bytesSent;
             data += bytesSent;
         }
-        else
+        else {
             close();
+
+            return;
+        }
     }
 }
 

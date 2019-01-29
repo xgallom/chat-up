@@ -2,15 +2,14 @@
 // Created by xgallom on 1/26/19.
 //
 
+#include "ClientService.h"
+#include "Ui.h"
+#include "CommandParser.h"
 #include <Messaging/Messages/Handshake.h>
 #include <Messaging/Messages/Authentication.h>
 #include <Messaging/Version.h>
-#include "ClientService.h"
-#include "Ui.h"
-#include <iostream>
 #include <Messaging/Messages/Content.h>
 #include <thread>
-#include <cstring>
 #include <algorithm>
 
 ClientService::ClientService(ClientSocket &socket) noexcept : m_receiver(socket), m_sender(socket) {}
@@ -34,9 +33,7 @@ Outcome::Enum ClientService::run()
             return runRunning();
     }
 
-    std::cerr << "Client service has invalid state\n";
-
-    return Outcome::Failed;
+    throw std::runtime_error("Client service has invalid state\n");
 }
 
 Outcome::Enum ClientService::runHandshaking()
@@ -113,6 +110,9 @@ Outcome::Enum ClientService::runAuthenticatingWaiting()
 {
     const auto message = m_receiver.receiveMessage();
 
+    if(!m_receiver.isOpen())
+        return Outcome::Success;
+
     if(message.isValid()) {
         switch(message.type()) {
             case MessageType::AuthenticationSuccessful:
@@ -130,7 +130,7 @@ Outcome::Enum ClientService::runAuthenticatingWaiting()
                 break;
 
             default:
-                Ui::Log() << "Invalid handshake response: " << message.type() << '\n';
+                Ui::Log() << "Invalid authentication response: " << message.type() << '\n';
 
                 return Outcome::Failed;
         }
@@ -141,7 +141,7 @@ Outcome::Enum ClientService::runAuthenticatingWaiting()
 
 Outcome::Enum ClientService::runRunning()
 {
-    static auto body = createBody<TextContentMessageBody>();;
+    static std::string message = std::string();
 
     auto chatWindow  = Ui::Window::FlatHorizontal(Ui::AlignStart, -5, "Messages", Ui::MessageInfo);
     auto inputWindow = Ui::Window::FlatHorizontal(Ui::AlignEnd, 3, "Enter message:", Ui::MessagePrimary);
@@ -163,9 +163,8 @@ Outcome::Enum ClientService::runRunning()
 
     inputWindow.move(1, 1);
     inputWindow.setTextLevel(inputWindow.messageLevel);
-    inputWindow.print(body->content.message.cbegin());
 
-    std::string message(body->content.message.cbegin());
+    inputWindow.print(message);
 
     Ui::setCursor(true);
 
@@ -186,18 +185,23 @@ Outcome::Enum ClientService::runRunning()
                 m_content.back() = receivedBody;
             }
 
-            copy(body->content.message, message);
-
             break;
         }
 
-        if(inputWindow.readStringAsync(message, static_cast<size_t>(inputWindow.width - 2)) && message.size()) {
-            copy(body->content.message, message);
-            body->content.user = m_user.username;
+        if(inputWindow.readStringAsync(message, static_cast<size_t>(inputWindow.width - 2)) && !message.empty()) {
 
-            m_sender.sendMessage<TextContentMessageBody>(Message(std::make_unique<TextContentMessageBody>(*body)));
+            if(message[0] == '/')
+                CommandParser::parse(m_sender, std::stringstream(message));
+            else {
+                auto body = createBody<TextContentMessageBody>();
 
-            *body = TextContentMessageBody();
+                copy(body->content.message, message);
+                body->content.user = m_user.username;
+
+                m_sender.sendMessage<TextContentMessageBody>(Message(std::move(body)));
+            }
+
+            message = std::string();
 
             break;
         }

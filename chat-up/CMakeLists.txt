@@ -1,7 +1,8 @@
 set(files
-        src/ClientService
+        src/ClientService.cpp
         src/ClientSocket.cpp
         src/ClientSocketConfig.cpp
+        src/CommandParser.cpp
         src/main.cpp
         src/Ui.cpp
         )

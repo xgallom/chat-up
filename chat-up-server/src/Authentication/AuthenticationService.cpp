@@ -34,6 +34,11 @@ Outcome::Enum AuthenticationService::run(MessageSender &sender, const Message &m
     return Outcome::Failed;
 }
 
+bool AuthenticationService::registerUser(const User &user)
+{
+    return m_storage.insert(user);
+}
+
 User AuthenticationService::user() const noexcept
 {
     return m_user;

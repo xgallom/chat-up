@@ -12,6 +12,7 @@
 #include <exception>
 #include <mutex>
 #include <algorithm>
+#include <Authentication/AuthenticationStorage.h>
 
 static ServerSocket initialize(int argc, char *argv[]);
 static void run(ServerSocket &server);
@@ -63,7 +64,47 @@ static void run(ServerSocket &server)
                                     std::ref(isRunning)
     );
 
-    std::cin.get();
+    std::string input;
+    while(input != "exit") {
+        std::cout << "$ ";
+        std::getline(std::cin, input);
+
+        if(input == "auth" || input == "auth list") {
+            std::cout << "auth list ";
+            AuthenticationStorage::Instance().list(std::cout);
+        }
+        else if(input == "auth find") {
+            User user;
+
+            std::cout << "username: ";
+            std::getline(std::cin, input);
+            copy(user.username,  input);
+
+            AuthenticationStorage::Instance().list(std::cout, user);
+        }
+        else if(input == "auth remove") {
+            User user;
+
+            std::cout << "username: ";
+            std::getline(std::cin, input);
+            copy(user.username,  input);
+
+            AuthenticationStorage::Instance().remove(user, true);
+        }
+        else if(input == "register") {
+            User user;
+
+            std::cout << "username: ";
+            std::getline(std::cin, input);
+            copy(user.username, input);
+
+            std::cout << "password: ";
+            std::getline(std::cin, input);
+            copy(user.password, input);
+
+            AuthenticationStorage::Instance().insert(user);
+        }
+    }
 
     isRunning = false;
     serverThread.join();
@@ -122,14 +163,14 @@ runClientHandler(std::unique_ptr<ClientSocket> &&socket, std::atomic_bool &isRun
     }
 
     while(socket->isOpen() && isRunning) {
-        //try {
+        try {
         if(!service.run())
             break;
-        /*} catch(std::exception &e) {
+        } catch(std::exception &e) {
             std::cerr << "Exception from client handler: " << e.what() << std::endl;
 
             break;
-        }*/
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }

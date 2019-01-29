@@ -253,7 +253,7 @@ namespace Ui
 
             window.move(2, 1);
             window.print(prompt);
-            window.setTextLevel(level);
+            window.setTextLevel(MessagePrimary);
 
             return window.readString(maxLen, secure);
         })();

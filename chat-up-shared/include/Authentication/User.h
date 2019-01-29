@@ -15,6 +15,7 @@ struct User {
 
 	bool operator<(const User &r) const noexcept;
 	bool operator==(const User &r) const noexcept;
+	bool operator!=(const User &r) const noexcept;
 };
 
 template<size_t N>

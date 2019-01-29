@@ -5,13 +5,12 @@
 #include "ClientSocket.h"
 #include "Ui.h"
 #include <Socket/SocketException.h>
+#include <csignal>
 
 extern "C" {
 #include <sys/socket.h>
 #include <unistd.h>
 }
-
-#include <csignal>
 
 ClientSocket::ClientSocket()
 {

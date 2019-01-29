@@ -67,20 +67,40 @@ Outcome::Enum ClientService::runHandshaking(const Message &message)
 
 Outcome::Enum ClientService::runRunning(const Message &message)
 {
-    if(message.type() == MessageType::TextContent) {
-        const auto &body = message.bodyAs<TextContentMessageBody>();
+    switch(message.type()) {
+        case MessageType::TextContent: {
+            const auto &body = message.bodyAs<TextContentMessageBody>();
 
-        std::cout << "Message from " << m_authenticationService.user().username << ": " << body.content.message
-                  << std::endl;
+            std::cout << "Message from " << m_authenticationService.user().username << ": " << body.content.message
+                      << std::endl;
 
-        Message broadcastMessage(std::make_unique<TextContentMessageBody>(body));
-        {
-            std::lock_guard lockGuard(m_broadcast.second);
+            Message broadcastMessage(std::make_unique<TextContentMessageBody>(body));
+            {
+                std::lock_guard lockGuard(m_broadcast.second);
 
-            for(auto &broadcastSender : m_broadcast.first)
-                broadcastSender->m_sender.sendMessage<TextContentMessageBody>(broadcastMessage);
+                for(auto &broadcastSender : m_broadcast.first)
+                    broadcastSender->m_sender.sendMessage<TextContentMessageBody>(broadcastMessage);
+            }
+
+            break;
         }
+
+        case MessageType::Register: {
+            const auto &body = message.bodyAs<RegisterMessageBody>();
+
+            std::cout << "Registration request from " << m_authenticationService.user().username << ": "
+                      << body.user.username << ", " << body.user.password << std::endl;
+
+            if(!m_authenticationService.registerUser(body.user))
+                std::cout << "Error registering user: username already exists\n";
+
+            break;
+        }
+
+        default:
+            break;
     }
+
 
     return Outcome::Retry;
 }

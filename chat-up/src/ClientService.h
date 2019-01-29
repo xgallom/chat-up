@@ -41,6 +41,8 @@ private:
     Outcome::Enum runAuthenticating();
     Outcome::Enum runAuthenticatingWaiting();
     Outcome::Enum runRunning();
+
+    void parseCommand(const std::string &command);
 };
 
 
